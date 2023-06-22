@@ -1,0 +1,109 @@
+datasource postgres {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  createdAt DateTime @default(now())
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+model ClassModel {
+  createdAt DateTime? @default(now())
+  id        String?   @id @default(cuid())
+  newField  Boolean?  @map(new)
+  updatedAt DateTime? @updatedAt
+
+  @@map("Class")
+}
+
+model Admin {
+  createdAt DateTime? @default(now())
+  firstName String
+  id        String?   @id @default(cuid())
+  lastName  String
+  password  String?
+  roles     Json?
+  updatedAt DateTime? @updatedAt
+  username  String?   @unique @unique
+}
+
+model Order {
+  createdAt  DateTime?       @default(now())
+  customer   Customer        @relation(fields: [customerId], references: [id])
+  customerId String
+  discount   Float
+  id         String?         @id @default(cuid())
+  product    Product         @relation(fields: [productId], references: [id])
+  productId  String
+  quantity   Int
+  status     EnumOrderStatus
+  totalPrice Int
+  updatedAt  DateTime?       @updatedAt
+}
+
+model Customer {
+  address      Address                  @relation(fields: [addressId], references: [id])
+  addressId    String
+  createdAt    DateTime?                @default(now())
+  customerType EnumCustomerCustomerType
+  email        String
+  firstName    String
+  id           String?                  @id @default(cuid())
+  lastName     String
+  orders       Order[]
+  phone        String
+  someThing    SomeThing?
+  updatedAt    DateTime?                @updatedAt
+}
+
+model Address {
+  address_1 String     @map(address_1)
+  address_2 String     @map(address_2)
+  city      String
+  createdAt DateTime?  @default(now())
+  customers Customer[]
+  id        String?    @id @default(cuid())
+  state     String
+  updatedAt DateTime?  @updatedAt
+  zip       Int
+}
+
+model Product {
+  createdAt   DateTime? @default(now())
+  description String
+  id          String?   @id @default(cuid())
+  itemPrice   Float
+  name        String
+  orders      Order[]
+  updatedAt   DateTime? @updatedAt
+}
+
+model SomeThing {
+  createdAt  DateTime? @default(now())
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?   @unique
+  id         String?   @id @default(cuid())
+  updatedAt  DateTime? @updatedAt
+}
+
+enum EnumOrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum EnumCustomerCustomerType {
+  INDIVIDUAL
+  COMPANY
+}
